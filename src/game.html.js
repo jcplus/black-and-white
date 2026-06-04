@@ -137,48 +137,53 @@ export default `<!DOCTYPE html>
     #board {
       position: absolute;
       width: 100%;
-      bottom: 0;
+      height: 100%;
+      top: 0;
       left: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .row {
-      display: flex;
-      width: 100%;
-      height: 160px; /* 一行高度 */
+      display: grid;
+      grid-template-rows: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
     }
 
     .cell {
-      flex: 1;
-      height: 100%;
-      border-right: 1px dashed rgba(255, 143, 163, 0.1);
-      border-top: 1px dashed rgba(255, 143, 163, 0.1);
       position: relative;
       cursor: pointer;
       background-color: transparent;
       transition: background-color 0.1s ease;
+      border-right: 1px dashed rgba(255, 143, 163, 0.1);
+      border-bottom: 1px dashed rgba(255, 143, 163, 0.1);
     }
 
-    .cell:last-child {
+    .cell:nth-child(4n) {
       border-right: none;
     }
 
+    .cell:nth-child(n+17) {
+      border-bottom: none;
+    }
+
     /* 黑块样式 (萌化彩色马卡龙块) */
-    .cell.black {
+    .cell.black::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      background-color: var(--tile-color);
       border-radius: 20px;
-      margin: 6px;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
       border: 3px solid #ffffff;
       transform: scale(1);
       transition: transform 0.1s ease, box-shadow 0.1s ease;
+      z-index: 1;
     }
 
-    .cell.black:active {
+    .cell.black:active::before {
       transform: scale(0.95);
     }
 
-    .cell.clicked {
+    .cell.clicked::before {
       background-color: var(--tile-active) !important;
       border: none !important;
       box-shadow: none !important;
@@ -442,6 +447,34 @@ export default `<!DOCTYPE html>
       0% { box-shadow: 0 24px 64px rgba(255, 143, 163, 0.2); }
       100% { box-shadow: 0 24px 64px rgba(255, 0, 127, 0.4); }
     }
+
+    /* GitHub version footer */
+    .github-footer {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #bfaab0;
+      text-decoration: none;
+      transition: color 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .github-footer:hover {
+      color: #ff6b8b;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    .github-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
   </style>
 </head>
 <body>
@@ -472,13 +505,18 @@ export default `<!DOCTYPE html>
       <h1>🌸 萌动黑白块 🌸</h1>
       <p style="font-size: 15px; margin-bottom: 24px;">
         【玩法介绍】<br>
-        1. 仅点击落下的<strong>彩色马卡龙方块</strong>！<br>
-        2. 方块会<strong>自动下落</strong>，且速度逐渐变快。<br>
+        1. 仅点击画面中随机出现的<strong>彩色马卡龙方块</strong>！<br>
+        2. 画面被方块<strong>填满</strong> (20个) 或者<strong>点击到空白位置</strong>，游戏即结束。<br>
         3. 连续消除<strong>同一种颜色</strong>可以积累 Combo！<br>
         4. 点到不同颜色将重置 Combo。Combo 越高，积分翻倍越多 (最高 x16)！
       </p>
       <button id="start-btn" class="btn">开始游戏</button>
-      <button id="view-leaderboard-btn" class="btn btn-secondary">查看排行榜</button>
+      <button id="view-leaderboard-btn" class="btn btn-secondary" style="margin-bottom: 40px;">查看排行榜</button>
+      
+      <a href="https://github.com/jcplus/black-and-white" target="_blank" rel="noopener noreferrer" class="github-footer">
+        <svg class="github-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        <span>v1.2.10</span>
+      </a>
     </div>
 
     <!-- 排行榜画面 -->
@@ -684,11 +722,10 @@ export default `<!DOCTYPE html>
     let state = {
       score: 0,
       combo: 0,
-      rows: [], 
+      cells: [], // 1D array of 20 elements representing the 5x4 grid
       isPlaying: false,
       isFever: false,
-      offsetY: 0,
-      speed: 120, // 初始每秒下落像素
+      spawnTimer: 0,
       lastTapColor: null,
       animationFrameId: null,
       lastTime: 0
@@ -697,13 +734,11 @@ export default `<!DOCTYPE html>
     function initGame() {
       state.score = 0;
       state.combo = 0;
-      state.rows = [];
-      state.offsetY = 0;
-      state.speed = 120;
+      state.cells = [];
+      state.spawnTimer = 0;
       state.lastTapColor = null;
       state.isFever = false;
       board.innerHTML = '';
-      board.style.transform = 'translateY(0px)';
       scoreVal.textContent = '0';
       comboVal.textContent = '0';
       multiplierVal.textContent = 'x1';
@@ -711,23 +746,38 @@ export default `<!DOCTYPE html>
       feverBanner.classList.remove('active');
       gameContainer.classList.remove('fever-mode');
       
-      // 生成初始行，最底下两行为空，给玩家反应时间
-      for (let i = 0; i < ROW_COUNT; i++) {
-        addRow(i < 2);
+      // Initialize the grid of 20 cells
+      for (let i = 0; i < 20; i++) {
+        const cellEl = document.createElement('div');
+        cellEl.className = 'cell';
+        cellEl.dataset.index = i;
+        
+        cellEl.addEventListener('mousedown', (e) => handleTap(i, cellEl, e));
+        cellEl.addEventListener('touchstart', (e) => {
+          e.preventDefault(); 
+          handleTap(i, cellEl, e.touches[0]);
+        });
+        
+        board.appendChild(cellEl);
+        state.cells.push({
+          el: cellEl,
+          hasBlock: false,
+          color: '',
+          spawnId: 0
+        });
+      }
+
+      // Spawn initial blocks to give the player something to start with
+      for (let i = 0; i < 2; i++) {
+        spawnBlock();
       }
     }
 
     // 获取颜色，保证屏幕上至少有两个相同颜色
     function getMacaronColor() {
-      const activeColors = [];
-      state.rows.forEach(r => {
-        if (r.blackIndex !== -1) {
-          const cell = r.cells[r.blackIndex];
-          if (cell && !cell.clicked) {
-            activeColors.push(cell.color);
-          }
-        }
-      });
+      const activeColors = state.cells
+        .filter(c => c.hasBlock)
+        .map(c => c.color);
 
       const randomColor = MACARON_COLORS[Math.floor(Math.random() * MACARON_COLORS.length)];
       
@@ -747,51 +797,32 @@ export default `<!DOCTYPE html>
       return randomColor;
     }
 
-    function addRow(isEmpty = false) {
-      const rowEl = document.createElement('div');
-      rowEl.className = 'row';
-      
-      const blackIndex = isEmpty ? -1 : Math.floor(Math.random() * COL_COUNT);
-      const cells = [];
-      
-      // 获取确保有重复颜色的马卡龙色
-      const rowColor = isEmpty ? '' : getMacaronColor();
-
-      for (let c = 0; c < COL_COUNT; c++) {
-        const cellEl = document.createElement('div');
-        cellEl.className = 'cell';
-        if (c === blackIndex) {
-          cellEl.classList.add('black');
-          cellEl.style.backgroundColor = rowColor;
-        }
-
-        cellEl.addEventListener('mousedown', (e) => handleTap(rowEl, c, cellEl, e));
-        cellEl.addEventListener('touchstart', (e) => {
-          e.preventDefault(); 
-          handleTap(rowEl, c, cellEl, e.touches[0]);
-        });
-
-        rowEl.appendChild(cellEl);
-        cells.push({ el: cellEl, isBlack: c === blackIndex, clicked: false, color: rowColor });
+    function spawnBlock() {
+      // Find empty cells
+      const emptyCells = state.cells.filter(c => !c.hasBlock);
+      if (emptyCells.length === 0) {
+        // No space to spawn, screen is completely filled
+        gameOver();
+        return;
       }
 
-      if (board.firstChild) {
-        board.insertBefore(rowEl, board.firstChild);
-      } else {
-        board.appendChild(rowEl);
-      }
-
-      state.rows.unshift({ el: rowEl, cells, blackIndex });
+      const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      const blockColor = getMacaronColor();
       
-      if (!isEmpty) {
-        playCuteSpawnSound();
-      }
-    }
+      randomCell.hasBlock = true;
+      randomCell.color = blockColor;
+      randomCell.spawnId = Date.now() + Math.random(); // unique id
+      
+      randomCell.el.style.setProperty('--tile-color', blockColor);
+      randomCell.el.classList.remove('clicked');
+      randomCell.el.classList.add('black');
+      
+      playCuteSpawnSound();
 
-    function removeLastRow() {
-      const lastRow = state.rows.pop();
-      if (lastRow) {
-        lastRow.el.remove();
+      // Check if board is now completely filled
+      const occupiedCount = state.cells.filter(c => c.hasBlock).length;
+      if (occupiedCount >= 20) {
+        gameOver();
       }
     }
 
@@ -804,39 +835,27 @@ export default `<!DOCTYPE html>
       return 1;
     }
 
-    function handleTap(rowEl, colIndex, cellEl, event) {
+    function handleTap(index, cellEl, event) {
       if (!state.isPlaying) return;
 
-      const rowIndex = state.rows.findIndex(r => r.el === rowEl);
-      
-      // 找到当前应该点击的最底部的含彩色块的行
-      let targetRowIndex = -1;
-      for (let i = state.rows.length - 1; i >= 0; i--) {
-        const r = state.rows[i];
-        if (r.blackIndex !== -1 && !r.cells[r.blackIndex].clicked) {
-          targetRowIndex = i;
-          break;
-        }
-      }
+      const targetCell = state.cells[index];
 
-      // 如果没有可点击的黑块
-      if (targetRowIndex === -1) return;
-
-      const currentRow = state.rows[rowIndex];
-      const targetCell = currentRow.cells[colIndex];
-
-      if (targetCell.isBlack && !targetCell.clicked) {
-        // 只能按顺序消除最下面的块
-        if (rowIndex !== targetRowIndex) {
-          // 点击了非最下方的彩色块，不做惩罚也不响应
-          return;
-        }
-
-        targetCell.clicked = true;
+      if (targetCell.hasBlock) {
+        const blockColor = targetCell.color;
+        targetCell.hasBlock = false;
+        
         cellEl.classList.add('clicked');
         
+        // Remove active class and variables after animation finishes, but only if a new block hasn't spawned since
+        const sid = targetCell.spawnId;
+        setTimeout(() => {
+          if (!targetCell.hasBlock && targetCell.spawnId === sid) {
+            cellEl.classList.remove('black', 'clicked');
+            cellEl.style.removeProperty('--tile-color');
+          }
+        }, 250);
+
         // 连击处理
-        const blockColor = targetCell.color;
         if (state.lastTapColor === null || state.lastTapColor === blockColor) {
           state.combo++;
         } else {
@@ -872,8 +891,8 @@ export default `<!DOCTYPE html>
         playTapSound(state.combo);
         createParticles(cellEl, event, blockColor);
 
-      } else if (!targetCell.isBlack) {
-        // 点击了白色区域
+      } else {
+        // 点击了没有方块的区域
         cellEl.classList.add('error');
         gameOver();
       }
@@ -908,7 +927,7 @@ export default `<!DOCTYPE html>
       }
     }
 
-    // 游戏循环逻辑：下落
+    // 游戏循环逻辑：随机生成方块
     function gameLoop(time) {
       if (!state.isPlaying) return;
       if (!state.lastTime) state.lastTime = time;
@@ -916,33 +935,19 @@ export default `<!DOCTYPE html>
       const dt = (time - state.lastTime) / 1000;
       state.lastTime = time;
 
-      // 速度随分数增加逐渐加快
-      state.speed = 120 + state.score * 5;
-      if (state.isFever) state.speed += 40; // Fever 额外加成
+      // 生成时间随分数增加逐渐缩短
+      const currentInterval = Math.max(0.3, 0.9 - state.score * 0.008 - (state.isFever ? 0.15 : 0));
 
-      state.offsetY += state.speed * dt;
-
-      if (state.offsetY >= ROW_HEIGHT) {
-        // 检查最后一排（最底下一排）是否包含未消除的彩色块
-        const lastRow = state.rows[state.rows.length - 1];
-        if (lastRow && lastRow.blackIndex !== -1 && !lastRow.cells[lastRow.blackIndex].clicked) {
-          // 彩色块触底，游戏结束
-          lastRow.cells[lastRow.blackIndex].el.classList.add('error');
-          gameOver();
-          return;
-        }
-
-        // 滚完一行，重置偏移，并生成新行
-        state.offsetY -= ROW_HEIGHT;
-        removeLastRow();
-        addRow();
+      state.spawnTimer += dt;
+      if (state.spawnTimer >= currentInterval) {
+        state.spawnTimer -= currentInterval;
+        spawnBlock();
       }
 
-      board.style.transform = \`translateY(\${state.offsetY}px)\`;
       state.animationFrameId = requestAnimationFrame(gameLoop);
     }
 
-    function gameOver() {
+    async function gameOver() {
       state.isPlaying = false;
       cancelAnimationFrame(state.animationFrameId);
       playFailSound();
@@ -951,14 +956,31 @@ export default `<!DOCTYPE html>
       const currentBest = Math.max(savedBest, state.score);
       localStorage.setItem('best_score_taptile', currentBest);
 
+      finalScore.textContent = state.score;
+      bestScore.textContent = currentBest;
+
+      // 检查当前分数是否有资格进入全球排行榜
+      if (state.score > 0) {
+        try {
+          const list = await getLeaderboard();
+          const isQualifying = list.length < 10 || state.score > list[list.length - 1].score;
+          
+          if (isQualifying) {
+            setTimeout(() => {
+              newRecordScore.textContent = state.score;
+              playerNameInput.value = '';
+              nameInputScreen.classList.remove('hidden');
+            }, 600);
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to check leaderboard qualifications:", e);
+        }
+      }
+
+      // 如果未进入排行榜或没有分数，直接显示结束界面
       setTimeout(() => {
-        finalScore.textContent = state.score;
-        bestScore.textContent = currentBest;
-        
-        // 弹出输入名字对话框
-        newRecordScore.textContent = state.score;
-        playerNameInput.value = '';
-        nameInputScreen.classList.remove('hidden');
+        overScreen.classList.remove('hidden');
       }, 600);
     }
 
@@ -970,43 +992,52 @@ export default `<!DOCTYPE html>
       const adj = ADJS[Math.floor(Math.random() * ADJS.length)];
       const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
       const num = Math.floor(Math.random() * 100);
-      return \`\${adj}\${noun}\${num}\`;
+      return adj + noun + num;
     }
 
-    function getLeaderboard() {
+    // 从全局 API 获取排行榜，若不可用则降级读取本地 localStorage
+    async function getLeaderboard() {
       try {
-        return JSON.parse(localStorage.getItem('taptile_leaderboard')) || [];
+        const response = await fetch('/api/leaderboard');
+        if (response.ok) {
+          const list = await response.json();
+          // 同步存一份到本地缓存作为降级备份
+          localStorage.setItem('taptile_leaderboard_backup', JSON.stringify(list));
+          return list;
+        } else {
+          throw new Error("API not ok");
+        }
       } catch (e) {
-        return [];
+        console.warn("Could not fetch global leaderboard, falling back to local storage:", e);
+        try {
+          return JSON.parse(localStorage.getItem('taptile_leaderboard_backup')) || [];
+        } catch (localErr) {
+          return [];
+        }
       }
     }
 
-    function saveLeaderboard(name, score) {
-      let list = getLeaderboard();
-      list.push({ name: name || "无名小英雄", score, date: new Date().toLocaleDateString() });
-      list.sort((a, b) => b.score - a.score);
-      list = list.slice(0, 10); // 只保留前十
-      localStorage.setItem('taptile_leaderboard', JSON.stringify(list));
-    }
-
-    function showLeaderboardView() {
-      const list = getLeaderboard();
+    async function showLeaderboardView() {
+      leaderboardList.innerHTML = '<div style="color: #8c7a7e; padding: 20px;">正在加载全球排行榜...</div>';
+      leaderboardScreen.classList.remove('hidden');
+      
+      const list = await getLeaderboard();
       leaderboardList.innerHTML = '';
+      
       if (list.length === 0) {
         leaderboardList.innerHTML = '<div style="color: #8c7a7e; padding: 20px;">暂无记录，快去创造新纪录吧！</div>';
       } else {
         list.forEach((item, index) => {
           const row = document.createElement('div');
-          row.className = \`leaderboard-item top-\${index < 3 ? index : 'other'}\`;
-          row.innerHTML = \`
-            <span class="rank-num">\${index + 1}</span>
-            <span class="player-name">\${item.name}</span>
-            <span class="player-score">\${item.score} 分</span>
-          \`;
+          row.className = 'leaderboard-item top-' + (index < 3 ? index : 'other');
+          row.innerHTML = '\
+            <span class="rank-num">' + (index + 1) + '</span>\
+            <span class="player-name">' + item.name + '</span>\
+            <span class="player-score">' + item.score + ' 分</span>\
+          ';
           leaderboardList.appendChild(row);
         });
       }
-      leaderboardScreen.classList.remove('hidden');
     }
 
     // --- 事件监听 ---
@@ -1027,6 +1058,8 @@ export default `<!DOCTYPE html>
 
     backToStartBtn.addEventListener('click', () => {
       leaderboardScreen.classList.add('hidden');
+      startScreen.classList.remove('hidden');
+      overScreen.classList.add('hidden');
     });
 
     // 随机名字按钮
@@ -1034,14 +1067,69 @@ export default `<!DOCTYPE html>
       playerNameInput.value = generateRandomName();
     });
 
-    // 保存名字
-    nameSubmitBtn.addEventListener('click', () => {
+    // 保存名字到全球排行榜
+    nameSubmitBtn.addEventListener('click', async () => {
       const name = playerNameInput.value.trim() || generateRandomName();
-      saveLeaderboard(name, state.score);
-      nameInputScreen.classList.add('hidden');
-      overScreen.classList.add('hidden');
-      showLeaderboardView();
+      nameSubmitBtn.disabled = true;
+      nameSubmitBtn.textContent = "保存中...";
+
+      try {
+        const response = await fetch('/api/leaderboard', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({ name, score: state.score })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          nameInputScreen.classList.add('hidden');
+          overScreen.classList.add('hidden');
+          await showLeaderboardView();
+        } else if (response.status === 429) {
+          // IP 限流
+          alert(result.message || "您今天已提交 10 次记录，请明天再试哦！");
+          nameInputScreen.classList.add('hidden');
+          overScreen.classList.remove('hidden');
+        } else if (response.status === 503) {
+          // KV 额度耗尽或不可用
+          alert("全球排行榜服务暂时不可用（可能已达到每日免费限额），正在保存至本地！");
+          saveLocalLeaderboardFallback(name, state.score);
+          nameInputScreen.classList.add('hidden');
+          overScreen.classList.add('hidden');
+          await showLeaderboardView();
+        } else {
+          alert(result.message || "保存失败，请稍后重试");
+          nameInputScreen.classList.add('hidden');
+          overScreen.classList.remove('hidden');
+        }
+      } catch (e) {
+        console.error("Error submitting score:", e);
+        alert("网络错误，提交失败，已保存至本地！");
+        saveLocalLeaderboardFallback(name, state.score);
+        nameInputScreen.classList.add('hidden');
+        overScreen.classList.add('hidden');
+        await showLeaderboardView();
+      } finally {
+        nameSubmitBtn.disabled = false;
+        nameSubmitBtn.textContent = "保存";
+      }
     });
+
+    // 本地排行榜降级保存
+    function saveLocalLeaderboardFallback(name, score) {
+      try {
+        let list = JSON.parse(localStorage.getItem('taptile_leaderboard_backup')) || [];
+        list.push({ name, score, date: new Date().toLocaleDateString() });
+        list.sort((a, b) => b.score - a.score);
+        list = list.slice(0, 10);
+        localStorage.setItem('taptile_leaderboard_backup', JSON.stringify(list));
+      } catch (e) {
+        console.error("Local save fallback failed:", e);
+      }
+    }
 
     // 取消进入排行榜
     nameCancelBtn.addEventListener('click', () => {
@@ -1062,6 +1150,7 @@ export default `<!DOCTYPE html>
       overScreen.classList.add('hidden');
       showLeaderboardView();
     });
+
   </script>
 </body>
 </html>

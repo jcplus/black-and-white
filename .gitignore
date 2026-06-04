@@ -8,3 +8,6 @@ Thumbs.db
 # Node dependencies
 node_modules/
 dist/
+
+# Cloudflare Wrangler Configuration
+wrangler.toml
