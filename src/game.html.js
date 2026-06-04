@@ -33,6 +33,7 @@ export default `<!DOCTYPE html>
       justify-content: center;
       align-items: center;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       transition: background 0.5s ease;
     }
@@ -42,8 +43,9 @@ export default `<!DOCTYPE html>
       position: relative;
       width: 100%;
       max-width: 440px;
-      height: 100%;
-      max-height: 800px;
+      height: 90%;
+      height: 90dvh;
+      max-height: min(800px, 90dvh);
       background-color: var(--tile-white);
       box-shadow: 0 24px 64px var(--shadow-color);
       border-radius: 32px;
@@ -141,8 +143,8 @@ export default `<!DOCTYPE html>
       top: 0;
       left: 0;
       display: grid;
-      grid-template-rows: repeat(5, 1fr);
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      grid-template-columns: repeat(6, 1fr);
     }
 
     .cell {
@@ -154,11 +156,11 @@ export default `<!DOCTYPE html>
       border-bottom: 1px dashed rgba(255, 143, 163, 0.1);
     }
 
-    .cell:nth-child(4n) {
+    .cell:nth-child(6n) {
       border-right: none;
     }
 
-    .cell:nth-child(n+17) {
+    .cell:nth-child(n+55) {
       border-bottom: none;
     }
 
@@ -475,6 +477,68 @@ export default `<!DOCTYPE html>
       height: 16px;
       fill: currentColor;
     }
+
+    /* 响应式样式适应不同屏幕 */
+    @media (max-width: 480px) {
+      #game-container {
+        max-width: 100%;
+        max-height: 100%;
+        height: 100%;
+        height: 100dvh;
+        width: 100%;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+      }
+      #hud {
+        top: 16px;
+        padding: 0 16px;
+      }
+      .hud-card {
+        padding: 8px 14px;
+        border-radius: 14px;
+      }
+      #score-val {
+        font-size: 20px;
+      }
+      #combo-val {
+        font-size: 18px;
+      }
+      .screen {
+        padding: 24px 20px;
+      }
+    }
+
+    /* 针对矮屏设备的缩放优化，防止溢出 */
+    @media (max-height: 680px) {
+      h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      h2 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+      p {
+        font-size: 13px;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      .btn {
+        padding: 10px 30px;
+        font-size: 16px;
+        margin: 6px 0;
+      }
+      .leaderboard-list {
+        max-height: 200px;
+        margin: 10px 0 15px;
+      }
+      #fever-banner {
+        top: 90px;
+        font-size: 16px;
+        padding: 6px 18px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -506,7 +570,7 @@ export default `<!DOCTYPE html>
       <p style="font-size: 15px; margin-bottom: 24px;">
         【玩法介绍】<br>
         1. 仅点击画面中随机出现的<strong>彩色马卡龙方块</strong>！<br>
-        2. 画面被方块<strong>填满</strong> (20个) 或者<strong>点击到空白位置</strong>，游戏即结束。<br>
+        2. 画面被方块<strong>填满</strong> (60个) 或者<strong>点击到空白位置</strong>，游戏即结束。<br>
         3. 连续消除<strong>同一种颜色</strong>可以积累 Combo！<br>
         4. 点到不同颜色将重置 Combo。Combo 越高，积分翻倍越多 (最高 x16)！
       </p>
@@ -515,7 +579,7 @@ export default `<!DOCTYPE html>
       
       <a href="https://github.com/jcplus/black-and-white" target="_blank" rel="noopener noreferrer" class="github-footer">
         <svg class="github-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-        <span>v1.3.0</span>
+        <span>v1.4.0</span>
       </a>
     </div>
 
@@ -677,8 +741,8 @@ export default `<!DOCTYPE html>
     }
 
     // --- 游戏配置 ---
-    const ROW_COUNT = 6; // 比之前多一行，防止顶端空缺
-    const COL_COUNT = 4; 
+    const ROW_COUNT = 10; 
+    const COL_COUNT = 6; 
     const ROW_HEIGHT = 160; 
 
     // 马卡龙色池
@@ -746,8 +810,8 @@ export default `<!DOCTYPE html>
       feverBanner.classList.remove('active');
       gameContainer.classList.remove('fever-mode');
       
-      // Initialize the grid of 20 cells
-      for (let i = 0; i < 20; i++) {
+      // Initialize the grid cells
+      for (let i = 0; i < ROW_COUNT * COL_COUNT; i++) {
         const cellEl = document.createElement('div');
         cellEl.className = 'cell';
         cellEl.dataset.index = i;
@@ -821,7 +885,7 @@ export default `<!DOCTYPE html>
 
       // Check if board is now completely filled
       const occupiedCount = state.cells.filter(c => c.hasBlock).length;
-      if (occupiedCount >= 20) {
+      if (occupiedCount >= ROW_COUNT * COL_COUNT) {
         gameOver();
       }
     }

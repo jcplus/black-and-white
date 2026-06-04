@@ -1,6 +1,6 @@
 {
   "name": "black-and-white",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Cute Piano Tiles game (玛卡隆色块) deployed on Cloudflare Workers",
   "main": "src/index.js",
   "type": "module",
