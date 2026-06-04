@@ -7,5 +7,5 @@ directory = "./public"
 
 [[kv_namespaces]]
 binding = "BLACK_AND_WHITE_LEADERBOARD_KV"
-id = "bf3dfc46fca4484dbff50c406214309a"
+id = "70ea8dfb425f47c49bb16d5c85e2548a"
 
