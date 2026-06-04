@@ -1,0 +1,14 @@
+{
+  "name": "black-and-white",
+  "version": "1.0.0",
+  "description": "Cute Piano Tiles game deployed on Cloudflare Workers",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.109.0"
+  }
+}
