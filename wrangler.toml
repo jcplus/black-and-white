@@ -1,0 +1,11 @@
+name = "black-and-white"
+main = "src/index.js"
+compatibility_date = "2024-06-04"
+
+[assets]
+directory = "./public"
+
+[[kv_namespaces]]
+binding = "BLACK_AND_WHITE_LEADERBOARD_KV"
+id = "bf3dfc46fca4484dbff50c406214309a"
+

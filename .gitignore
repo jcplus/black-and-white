@@ -10,4 +10,5 @@ node_modules/
 dist/
 
 # Cloudflare Wrangler Configuration
-wrangler.toml
+# wrangler.toml
+
